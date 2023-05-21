@@ -1,0 +1,37 @@
+name: Issue Workflow
+on:
+  issues:
+    types:
+      - opened
+      - edited
+      - closed
+
+jobs:
+  process_issue:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run issue processing script
+      run: npm run process-issue -- ${{ github.event.issue.number }}
+
+    - name: Comment on issue
+      if: github.event.action == 'opened' || github.event.action == 'edited'
+      run: |
+        echo "Thank you for reporting/editing the issue!"
+        echo "We have noted your changes."
+
+    - name: Close issue
+      if: github.event.action == 'closed'
+      run: |
+        echo "Issue has been resolved. Thank you for your contribution!"
